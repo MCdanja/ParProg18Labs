@@ -6,12 +6,21 @@ public class App
 {
     public static void main( String[] args ) throws NumberFormatException, IOException
     {
-        FileReader reader = new FileReader("prog.txt");
-            // читаем посимвольно
-            int c;
-            while((c=reader.read())!=-1)
-            {
-                System.out.print((char)c);
-            }
+        String str;
+        str = ReadFromFile("text.txt");
+        System.out.println(str);
+    }
+
+    public static String ReadFromFile(String fname) throws IOException
+    {
+        String tmp = "";
+        FileReader reader = new FileReader(fname);
+        // читаем посимвольно
+        int c;
+        while((c=reader.read())!=-1)
+        {
+            tmp += (char)c;
+        }
+        return tmp;
     }
 }

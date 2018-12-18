@@ -1,8 +1,8 @@
 package ru.spbstu.telematics.java;
 
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
+
+import java.io.IOException;
 
 /**
  * Unit test for simple App.
@@ -10,29 +10,28 @@ import junit.framework.TestSuite;
 public class AppTest 
     extends TestCase
 {
-    /**
-     * Create the test case
-     *
-     * @param testName name of the test case
-     */
-    public AppTest( String testName )
+    public void testReadertext() throws IOException
     {
-        super( testName );
+        assertEquals(App.ReadFromFile("text.txt"), "Hello World!\nMy name is Daniel.\n");
     }
-
-    /**
-     * @return the suite of tests being tested
-     */
-    public static Test suite()
+    public void testReaderprog() throws IOException
     {
-        return new TestSuite( AppTest.class );
-    }
-
-    /**
-     * Rigourous Test :-)
-     */
-    public void testApp()
-    {
-        assertTrue( true );
+        assertEquals(App.ReadFromFile("prog.txt"), "package ru.spbstu.telematics.java;\n" +
+                "\n" +
+                "import java.io.*;\n" +
+                "\n" +
+                "public class App \n" +
+                "{\n" +
+                "    public static void main( String[] args ) throws NumberFormatException, IOException\n" +
+                "    {\n" +
+                "        FileReader reader = new FileReader(\"text.txt\");\n" +
+                "            // читаем посимвольно\n" +
+                "            int c;\n" +
+                "            while((c=reader.read())!=-1)\n" +
+                "            {\n" +
+                "                System.out.print((char)c);\n" +
+                "            }\n" +
+                "    }\n" +
+                "}\n");
     }
 }
