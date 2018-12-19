@@ -9,6 +9,8 @@ public class App
         String str;
         str = ReadFromFile("text.txt");
         System.out.println(str);
+        str = ReadFromFile("prog.txt");
+        System.out.println(str);
     }
 
     public static String ReadFromFile(String fname) throws IOException
