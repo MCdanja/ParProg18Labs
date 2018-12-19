@@ -7,7 +7,7 @@ import java.util.LinkedList;
 /**
  * Unit test for simple App.
  */
-public class AppTest 
+public class AppTest
     extends TestCase
 {
     public void testMyLinkedListInteger()
@@ -74,5 +74,17 @@ public class AppTest
         myl_i.add(5);
         myl_i.remove(2);
         assertEquals(4, myl_i.size());
+    }
+
+    public void testMyLinkedListContains()
+    {
+        MyLinkedList<Integer> myl_i = new MyLinkedList<Integer>();
+        myl_i.add(1);
+        myl_i.add(2);
+        myl_i.add(3);
+        myl_i.add(4);
+        myl_i.add(5);
+        myl_i.remove(2);
+        assertEquals(true, myl_i.contains(4));
     }
 }

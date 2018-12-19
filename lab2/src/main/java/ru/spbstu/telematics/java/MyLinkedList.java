@@ -59,9 +59,9 @@ public class MyLinkedList<T> implements Iterable<T>
     boolean contains(T item)
     {
         Node<T> node = Head._next;
-        for(int i = 0;i < list_size; i++)
+        for(int i = 0; i < list_size; i++)
         {
-            if(node._data == item)
+            if(node._data.equals(item))
             {
                 return true;
             }

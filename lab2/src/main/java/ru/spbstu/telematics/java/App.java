@@ -7,21 +7,33 @@ public class App
 {
     public static void main( String[] args ) throws NumberFormatException, IOException
     {
-        MyLinkedList<Integer> a = new MyLinkedList<Integer>();
-        a.add(5);
-        a.add(3);
-        a.add(7);
-        a.add(1);
-        a.remove(1);
-        Iterator<Integer> it = a.iterator();
+        MyLinkedList<Integer> list = new MyLinkedList<Integer>();
+        list.add(5);
+        list.add(3);
+        list.add(7);
+        list.add(1);
+        list.remove(1);
+
+        System.out.println(list.contains(7));
+
+        Iterator<Integer> it = list.iterator();
         while(it.hasNext())
         {
             System.out.println(it.next());
         }
 
-        for(Integer i: a)
+        for(Integer i: list)
         {
             System.out.println(i);
         }
+
+        MyLinkedList<String> str = new MyLinkedList<String>();
+        str.add("a");
+        str.add("b");
+        str.add("c");
+        str.add("d");
+        str.remove(1);
+
+        System.out.println(str.contains("c"));
     }
 }
