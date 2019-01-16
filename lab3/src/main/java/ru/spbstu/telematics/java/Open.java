@@ -11,22 +11,9 @@ public class Open implements Runnable
     
     public void run()
     {
-        window.nowopen = true;
-        while (window.getTime_passed() < window.getHold_button_time())
+        while (window.actions.size() != 0)
         {
-            if(window.isFull_open())
-            {
-                break;
-            }
-            try
-            {
-                Thread.sleep(window.getDelta_time());
-                window.AddOpened_percent();
-            } catch (InterruptedException e)
-            {
-                System.out.println("Thread has been interrupted");
-            }
+            window.start_open();
         }
-        window.nowopen = false;
     }
 }

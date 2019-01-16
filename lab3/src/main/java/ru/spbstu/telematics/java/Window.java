@@ -1,5 +1,6 @@
 package ru.spbstu.telematics.java;
 
+import java.util.Vector;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -7,8 +8,6 @@ public class Window
 {
     private boolean full_open;
     private boolean full_close;
-    boolean nowclose;
-    boolean nowopen;
     private int opened_percent;
     private int time_passed;
     private int hold_button_time;
@@ -20,65 +19,62 @@ public class Window
     private Thread t_open;
     private Thread t_close;
     
+    public Vector<Integer> actions;
     
-    Window()
+    
+    Window(Vector<Integer> actions, int delta_time)
     {
         full_close = true;
         full_open = false;
-        nowclose = false;
-        nowopen = false;
         opened_percent = 0;
         time_passed = 0;
-        delta_time = 50;
+        this.delta_time = delta_time;
+        hold_button_time = 0;
+        this.actions = actions;
         open = new Open(this);
         close = new Close(this);
         locker = new ReentrantLock();
         condition = locker.newCondition();
+        t_close = new Thread(close);
+        t_open = new Thread(open);
     }
     
-    public boolean isFull_close()
+    public void Start()
     {
-        return full_close;
+        t_close.start();
+        t_open.start();
     }
     
-    public boolean isFull_open()
-    {
-        return full_open;
-    }
     
-    public void AddOpened_percent()
+    void AddOpened_percent()
     {
         if (!full_open)
         {
             time_passed += delta_time;
-            if (time_passed % (delta_time * 5) == 0)
-            {
-                opened_percent += 1;
-                CheckWindowStatus();
-            }
+            opened_percent += 1;
+            CheckWindowStatus();
+            System.out.println(opened_percent);
         } else
         {
             System.out.println("Error: the window was already open");
         }
     }
     
-    public void SubOpened_percent()
+    void SubOpened_percent()
     {
         if (!full_close)
         {
             time_passed += delta_time;
-            if (time_passed % (delta_time * 5) == 0)
-            {
-                opened_percent -= 1;
-                CheckWindowStatus();
-            }
+            opened_percent -= 1;
+            CheckWindowStatus();
+            System.out.println(opened_percent);
         } else
         {
             System.out.println("Error: the window was already close");
         }
     }
     
-    public void CheckWindowStatus()
+    void CheckWindowStatus()
     {
         if (opened_percent == 0)
         {
@@ -95,92 +91,89 @@ public class Window
         }
     }
     
-    public int getOpened_percent()
-    {
-        return opened_percent;
-    }
-    
-    public int getTime_passed()
-    {
-        return time_passed;
-    }
-    
-    public int getHold_button_time()
-    {
-        return hold_button_time;
-    }
-    
-    public void setHold_button_time(int time)
-    {
-        hold_button_time = time;
-    }
-    
-    public int getDelta_time()
-    {
-        return delta_time;
-    }
-    
-    public void FullClose()
-    {
-        setHold_button_time(100 * delta_time * 5);
-        start_close();
-    }
-    
-    public void FullOpen()
-    {
-        setHold_button_time(100 * delta_time * 5);
-        start_open();
-    }
-    
-    public void start_close()
+    synchronized void start_close()
     {
         locker.lock();
-        time_passed = 0;
-        t_close = new Thread(close);
-        System.out.println("Start close");
-        t_close.start();
         try
         {
-            t_close.join();
-            while (nowclose)
-                Thread.currentThread().sleep(delta_time);
-            stop_close();
+            while (actions.size() != 0 && actions.get(0) < 0)
+                condition.await();
+            if (actions.size() != 0)
+            {
+                hold_button_time = actions.get(0);
+                actions.remove(0);
+                if (hold_button_time < 5 * delta_time)
+                    hold_button_time = 100 * delta_time;
+                time_passed = 0;
+                
+                System.out.println("Start close");
+                while (time_passed < hold_button_time)
+                {
+                    if (full_close)
+                    {
+                        break;
+                    }
+                    try
+                    {
+                        Thread.sleep(delta_time);
+                        SubOpened_percent();
+                    } catch (InterruptedException e)
+                    {
+                        System.out.println("Thread has been interrupted");
+                    }
+                }
+                System.out.println("End close");
+            }
+            condition.signalAll();
         } catch (InterruptedException e)
         {
             System.out.println(e.getMessage());
+        } finally
+        {
+            locker.unlock();
         }
     }
     
-    public void stop_close()
-    {
-        System.out.println("Stop close. Window open " + getOpened_percent() + " percent");
-        condition.signalAll();
-        locker.unlock();
-    }
-    
-    public void start_open()
+    void start_open()
     {
         locker.lock();
-        time_passed = 0;
-        t_open = new Thread(open);
-        System.out.println("Start open");
-        t_open.start();
         try
         {
-            t_open.join();
-            while (nowopen)
-                Thread.currentThread().sleep(delta_time);
-            stop_open();
+            while (actions.size() != 0 && actions.get(0) > 0)
+                condition.await();
+            if (actions.size() != 0)
+            {
+                hold_button_time = actions.get(0) * -1;
+                actions.remove(0);
+                if (hold_button_time < 5 * delta_time)
+                    hold_button_time = 100 * delta_time;
+                time_passed = 0;
+                
+                System.out.println("Start open");
+                while (time_passed < hold_button_time)
+                {
+                    if (full_open)
+                    {
+                        break;
+                    }
+                    try
+                    {
+                        Thread.sleep(delta_time);
+                        AddOpened_percent();
+                    } catch (InterruptedException e)
+                    {
+                        System.out.println("Thread has been interrupted");
+                    }
+                }
+                System.out.println("End open");
+            }
+            condition.signalAll();
         } catch (InterruptedException e)
         {
             System.out.println(e.getMessage());
+        } finally
+        {
+            locker.unlock();
         }
-    }
-    
-    public void stop_open()
-    {
-        System.out.println("Stop open. Window open " + getOpened_percent() + " percent");
-        condition.signalAll();
-        locker.unlock();
     }
 }

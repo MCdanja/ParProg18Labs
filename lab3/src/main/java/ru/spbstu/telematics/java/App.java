@@ -1,22 +1,24 @@
 package ru.spbstu.telematics.java;
 
+import java.util.Vector;
+
 public class App
 {
-    public static void main( String[] args )
+    public static void main(String[] args)
     {
         System.out.println("Main thread started...");
-
-        Window window = new Window();
-        Button button = new Button(window);
         
-        button.PushDown(20 * window.getDelta_time() * 5);
-        button.PushDown(40 * window.getDelta_time() * 5);
-        button.PushUp(50 * window.getDelta_time() * 5);
-        button.PushDown(100 * window.getDelta_time() * 5);
-        button.PushDown(100 * window.getDelta_time() * 5);
-        button.PushUp(50 * window.getDelta_time() * 5);
-        button.PushUp(500);
-        button.PushDown(500);
+        Vector<Integer> actions = new Vector<>();
+        int delta_time = 250;
+        
+        actions.add(-30 * delta_time);
+        actions.add(20 * delta_time);
+        actions.add(5 * delta_time);
+        actions.add(-25 * delta_time);
+        actions.add(3 * delta_time);
+        
+        Window window = new Window(actions, delta_time);
+        window.Start();
         
         System.out.println("Main thread finished...");
     }
